@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kh Islam — Digital Monochrome</title>
+<meta name="description" content="Kh Islam — Digital Monochrome. A minimalist digital portfolio in monochrome with advanced interactions. HTML, CSS & JavaScript expertise." />
+<meta name="keywords" content="digital, monochrome, portfolio, HTML, CSS, JavaScript, design, gallery" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* -------------------------
+     Variables / Reset
+     ------------------------- */
+  :root{
+    --bg: #ffffff;
+    --fg: #0b0b0b;
+    --muted: #6e6e6e;
+    --accent: #9a9a9a;
+    --glass: rgba(0,0,0,0.04);
+    --radius: 14px;
+    --transition: 0.6s cubic-bezier(.2,.9,.3,1);
+  }
+  [data-theme="dark"]{
+    --bg: #000000;
+    --fg: #ffffff;
+    --muted: #bfbfbf;
+    --accent: #7a7a7a;
+    --glass: rgba(255,255,255,0.04);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--fg);font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;scroll-behavior:smooth;transition:background var(--transition), color var(--transition)}
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  /* -------------------------
+     Loader
+     ------------------------- */
+  .loader-wrap{
+    position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:99999;transition:opacity .6s;
+  }
+  .loader {
+    width:104px;height:104px;border-radius:50%;border:6px solid var(--accent);border-top-color:transparent;border-right-color:transparent;animation:spin 1.25s linear infinite;
+    display:grid;place-items:center;
+  }
+  .loader small{display:block;margin-top:12px;color:var(--muted);font-size:13px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* -------------------------
+     Header
+     ------------------------- */
+  header{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:1200px;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:60;
+    backdrop-filter: blur(6px);
+  }
+  .brand{font-weight:700;letter-spacing:3px;font-size:18px}
+  nav{display:flex;gap:14px;align-items:center}
+  nav a{padding:7px 10px;border-radius:8px;font-weight:600;opacity:.96}
+  nav a:hover{transform:translateY(-3px)}
+  .toggle{border:1px solid var(--fg);background:transparent;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .2s}
+
+  /* -------------------------
+     Cursor
+     ------------------------- */
+  .cursor{position:fixed;left:0;top:0;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;border:2px solid var(--fg);pointer-events:none;z-index:9999;transition:transform .08s linear,width .18s,height .18s,background .18s}
+  .interactive:hover ~ .cursor, a:hover ~ .cursor, button:hover ~ .cursor {width:42px;height:42px;background:var(--fg)}
+
+  /* -------------------------
+     Hero
+     ------------------------- */
+  .hero{min-height:100vh;padding:110px 6% 84px;display:grid;align-content:center;position:relative;z-index:2;overflow:hidden}
+  .hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:42px;align-items:center}
+  .hero h1{font-size:56px;line-height:1.02;letter-spacing:6px;margin-bottom:8px}
+  .hero p{color:var(--muted);max-width:60ch;font-size:18px}
+  .cta{display:flex;gap:12px;margin-top:20px}
+  .btn{padding:12px 18px;border-radius:10px;border:1px solid var(--fg);background:var(--fg);color:var(--bg);font-weight:700;cursor:pointer;transition:all .25s}
+  .btn.secondary{background:transparent;color:var(--fg);border:1px solid var(--accent)}
+
+  /* -------------------------
+     Skills card
+     ------------------------- */
+  .skills-card{backdrop-filter: blur(8px);background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.00));border-radius:14px;padding:18px;border:1px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,0.06)}
+  .skills-title{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .lang{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;transition:transform .35s,box-shadow .35s;cursor:default}
+  .lang:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,0.10)}
+  .icon-wrap{width:52px;height:52px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--accent);background:var(--glass)}
+  .bar{height:8px;background:linear-gradient(90deg,var(--fg),var(--accent));border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:0%;background:var(--fg);transition:width 1.2s cubic-bezier(.2,.9,.3,1)}
+  .lang p{color:var(--muted);font-size:13px;margin-top:6px}
+
+  /* -------------------------
+     Sections & Gallery
+     ------------------------- */
+  .section{padding:80px 6%}
+  .section h2{font-size:36px;margin-bottom:18px;letter-spacing:3px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .card{border-radius:12px;overflow:hidden;position:relative;transition:transform .45s,box-shadow .45s}
+  .card img{height:240px;object-fit:cover;filter:grayscale(100%);transition:all .45s}
+  .card:hover{transform:translateY(-8px);box-shadow:0 30px 60px rgba(0,0,0,0.12)}
+  .card:hover img{filter:grayscale(0);transform:scale(1.04)}
+
+  /* -------------------------
+     Contact Form
+     ------------------------- */
+  form{max-width:720px;margin:18px auto 0;display:grid;gap:12px}
+  input,textarea{padding:12px;border-radius:10px;border:1px solid var(--accent);background:transparent;color:var(--fg)}
+  .send{padding:12px;border-radius:10px;border:1px solid var(--fg);background:var(--fg);color:var(--bg);cursor:pointer}
+
+  /* -------------------------
+     Footer & Top button
+     ------------------------- */
+  footer{padding:30px 6%;border-top:1px solid var(--accent);color:var(--muted);text-align:center}
+  .top-btn{position:fixed;right:22px;bottom:22px;padding:12px;border-radius:12px;border:1px solid var(--fg);background:transparent;cursor:pointer;z-index:60;transform-origin:center;opacity:0;pointer-events:none;transition:all .3s}
+  .top-btn.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+
+  /* -------------------------
+     Reveal / parallax helpers
+     ------------------------- */
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease}
+  .reveal.show{opacity:1;transform:translateY(0)}
+  [data-parallax]{transform:translateY(0);transition:transform 0.3s linear}
+
+  /* -------------------------
+     Responsive
+     ------------------------- */
+  @media (max-width:1000px){
+    .hero-inner{grid-template-columns:1fr;gap:26px}
+    .hero h1{font-size:40px}
+  }
+  @media (max-width:520px){
+    header{padding:8px 14px;left:8px;transform:none}
+    .hero{padding:90px 4% 64px}
+    .hero h1{font-size:32px}
+    .lang-grid{grid-template-columns:1fr}
+  }
+
+  /* -------------------------
+     Accessibility: reduce motion
+     ------------------------- */
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+  <!-- Loader -->
+  <div class="loader-wrap" id="loader" role="status" aria-live="polite">
+    <div style="text-align:center">
+      <div class="loader" aria-hidden="true"></div>
+      <small>Loading — Kh Islam</small>
+    </div>
+  </div>
+
+  <!-- Star background canvas -->
+  <canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none"></canvas>
+
+  <!-- Header -->
+  <header role="banner" aria-label="Main header">
+    <div class="brand">Kh Islam</div>
+    <nav aria-label="Main navigation">
+      <a href="#home" class="interactive">Home</a>
+      <a href="#about" class="interactive">About</a>
+      <a href="#gallery" class="interactive">Gallery</a>
+      <a href="#skills" class="interactive">Skills</a>
+      <a href="#contact" class="interactive">Contact</a>
+      <button id="themeToggle" class="toggle" aria-pressed="false" title="Toggle theme">Dark</button>
+    </nav>
+  </header>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+  <!-- Hero -->
+  <section id="home" class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <div class="hero-left reveal" data-parallax>
+        <h1 id="hero-title">Kh Islam</h1>
+        <p>A monochrome digital journey blending quiet intensity, refined motion, and clean structure. I craft focused experiences using HTML, CSS and JavaScript.</p>
+        <div class="cta">
+          <a href="#skills" class="btn">View Skills</a>
+          <a href="#contact" class="btn secondary">Get in Touch</a>
+        </div>
+      </div>
+
+      <aside class="skills-card reveal" data-parallax>
+        <div class="skills-title">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="4" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+          <div>
+            <div style="font-weight:700">Core Technologies</div>
+            <div style="color:var(--muted);font-size:13px">HTML • CSS • JavaScript</div>
+          </div>
+        </div>
+
+        <div class="lang-grid" id="langGrid">
+          <!-- HTML -->
+          <div class="lang" data-lang="html">
+            <div class="icon-wrap" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 2l1.5 17L12 22l7.5-3L21 2H3z" stroke="currentColor" stroke-width="1.1" fill="none"/>
+                <path d="M8.5 8.5h7M8.5 12.5h7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <h4>HTML</h4>
+              <div class="bar" aria-hidden="true" style="margin-top:8px"><i style="width:0%" data-width="95%"></i></div>
+              <p>Semantic structure, accessibility (ARIA) and SEO-friendly markup.</p>
+            </div>
+          </div>
+
+          <!-- CSS -->
+          <div class="lang" data-lang="css">
+            <div class="icon-wrap" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 2l1.6 17L12 22l7.4-3L21 2H3z" stroke="currentColor" stroke-width="1.1" fill="none"/>
+                <path d="M7 8h10M7 12h8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <h4>CSS</h4>
+              <div class="bar" style="margin-top:8px"><i style="width:0%" data-width="90%"></i></div>
+              <p>Responsive layouts, animations, Grid, Flexbox and modern techniques.</p>
+            </div>
+          </div>
+
+          <!-- JavaScript -->
+          <div class="lang" data-lang="js">
+            <div class="icon-wrap" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 3h16v18H4z" stroke="currentColor" stroke-width="1.1" fill="none"/>
+                <path d="M9 8.5v6l3-1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <h4>JavaScript</h4>
+              <div class="bar" style="margin-top:8px"><i style="width:0%" data-width="88%"></i></div>
+              <p>Interaction, Canvas, animations and UX improvements.</p>
+            </div>
+          </div>
+
+          <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;margin-top:6px">
+            <div style="flex:1;color:var(--muted);font-size:13px">Interactive skill preview with animated progress and hover micro-interactions.</div>
+            <div style="padding:8px 10px;border-radius:10px;border:1px solid var(--accent);font-weight:700">Pro</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section reveal" aria-labelledby="aboutTitle">
+    <h2 id="aboutTitle">About</h2>
+    <p style="max-width:900px;margin:0 auto;color:var(--muted)">
+      Kh Islam — a minimalist, monochrome approach to digital design. I focus on space, rhythm and subtle motion to craft honest, usable interfaces. This site demonstrates techniques in HTML, CSS and JavaScript with accessible markup and refined interactions.
+    </p>
+  </section>
+
+  <!-- Gallery -->
+  <section id="gallery" class="section reveal" aria-labelledby="galleryTitle">
+    <h2 id="galleryTitle">Gallery</h2>
+    <div class="gallery" id="galleryGrid" aria-live="polite">
+      <figure class="card reveal"><img src="https://i.postimg.cc/yNMXcdZx/8a76ca773c269bee8a8dc682f1ddbda8.jpg" alt="Artwork 1"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/1tHs3dFX/download.jpg" alt="Artwork 2"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/XY4MpLVh/image.jpg" alt="Artwork 3"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/FFCXC3gq/download-1.jpg" alt="Artwork 4"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/q7XWZ9XZ/wallhaven-6ddxy6.jpg" alt="Artwork 5"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/7L6SpzSc/0-0.jpg" alt="Artwork 6"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/sgpDQGBy/cd691ac735f562383bd34048ebbd133e.jpg"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/2Sn1fKmc/download-2.jpg"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/L8h3mRhP/c4c48a4ed75e84578bee40b568489063.jpg"></figure>
+      <figure class="card reveal"><img src="https://i.postimg.cc/PfzLccXS/download-3.jpg"></figure>
+    </div>
+  </section>
+
+  <!-- Skills (Detailed) -->
+  <section id="skills" class="section reveal" aria-labelledby="skillsTitle">
+    <h2 id="skillsTitle">Skills & Technologies</h2>
+    <p style="max-width:900px;margin:0 auto;color:var(--muted)">Interactive breakdown of core skills: hover a card to see micro-interactions. Progress bars animate when visible.</p>
+
+    <div style="max-width:1100px;margin:28px auto;display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div style="display:grid;gap:12px">
+        <div class="card reveal" style="padding:18px;display:flex;gap:14px;align-items:center">
+          <div style="width:84px;height:84px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--accent)"><strong style="font-size:20px">HTML</strong></div>
+          <div>
+            <h3 style="margin-bottom:6px">HTML — Markup & Accessibility</h3>
+            <p style="color:var(--muted);margin-bottom:8px">Semantic markup, ARIA, SEO optimisation and performant structure.</p>
+            <div class="bar" style="width:240px"><i style="width:95%"></i></div>
+          </div>
+        </div>
+
+        <div class="card reveal" style="padding:18px;display:flex;gap:14px;align-items:center">
+          <div style="width:84px;height:84px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--accent)"><strong style="font-size:20px">CSS</strong></div>
+          <div>
+            <h3 style="margin-bottom:6px">CSS — Layout & Animation</h3>
+            <p style="color:var(--muted);margin-bottom:8px">Grid, Flexbox, transitions, and advanced animations.</p>
+            <div class="bar" style="width:240px"><i style="width:90%"></i></div>
+          </div>
+        </div>
+
+        <div class="card reveal" style="padding:18px;display:flex;gap:14px;align-items:center">
+          <div style="width:84px;height:84px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--accent)"><strong style="font-size:20px">JS</strong></div>
+          <div>
+            <h3 style="margin-bottom:6px">JavaScript — Interaction</h3>
+            <p style="color:var(--muted);margin-bottom:8px">DOM, Canvas, animation control and UX improvements.</p>
+            <div class="bar" style="width:240px"><i style="width:88%"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:12px">
+        <div class="card reveal" style="padding:18px">
+          <h3>Interactive Playground</h3>
+          <p style="color:var(--muted);margin-bottom:8px">This area demonstrates elements that respond to mouse and scroll. The star background subtly reacts to your cursor and scrolling for depth.</p>
+          <div style="height:220px;border-radius:10px;border:1px solid var(--accent);display:grid;place-items:center;background:var(--glass)">Interactive demo</div>
+        </div>
+
+        <div class="card reveal" style="padding:18px">
+          <h3>Animated Icons</h3>
+          <p style="color:var(--muted);margin-bottom:8px">Lightweight SVG icons with micro animations for crisp performance.</p>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:52px;height:52px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--accent)">HTML</div>
+            <div style="width:52px;height:52px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--accent)">CSS</div>
+            <div style="width:52px;height:52px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--accent)">JS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section reveal" aria-labelledby="contactTitle">
+    <h2 id="contactTitle">Contact</h2>
+    <p style="color:var(--muted);max-width:900px;margin:0 auto">Interested to collaborate? Send a message and I'll reply as soon as possible.</p>
+
+    <form onsubmit="event.preventDefault(); fakeSubmit();" aria-label="Contact form">
+      <input type="text" placeholder="Name" required aria-label="Name">
+      <input type="email" placeholder="Email" required aria-label="Email">
+      <textarea rows="5" placeholder="Your message..." aria-label="Message"></textarea>
+      <button class="send" type="submit">Send</button>
+    </form>
+  </section>
+
+  <footer>
+    © <span id="year"></span> Kh Islam. All rights reserved.
+  </footer>
+
+  <button class="top-btn" id="topBtn" aria-label="Back to top">↑</button>
+
+<script>
+/* =========================
+   Initialization & Utilities
+   ========================= */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* Loader */
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loader');
+  loader.style.opacity = '0';
+  setTimeout(()=> loader.remove(), 700);
+
+  // animate skill bars after load (for bars with data-width)
+  document.querySelectorAll('.bar > i[data-width]').forEach(i => {
+    const w = i.getAttribute('data-width');
+    setTimeout(()=> i.style.width = w, 500);
+  });
+
+  // also animate inline-width bars
+  document.querySelectorAll('.bar > i:not([data-width])').forEach(i => {
+    const computed = window.getComputedStyle(i).width;
+    if(!i.style.width || i.style.width === '0%') {
+      // there are some with inline width set (like 95%) in skills section - set them quickly
+      // if none, leave 0
+      // no action needed if width already set in markup
+    }
+  });
+});
+
+/* =========================
+   Theme toggle (persist per session)
+   ========================= */
+const themeToggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+themeToggle.addEventListener('click', () => {
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.removeAttribute('data-theme'); themeToggle.textContent = 'Dark'; themeToggle.setAttribute('aria-pressed','false');
+    sessionStorage.setItem('theme','light');
+  } else {
+    html.setAttribute('data-theme','dark'); themeToggle.textContent = 'Light'; themeToggle.setAttribute('aria-pressed','true');
+    sessionStorage.setItem('theme','dark');
+  }
+});
+// restore theme from session (keeps page single-file but persistent per tab)
+if(sessionStorage.getItem('theme') === 'dark') {
+  html.setAttribute('data-theme','dark'); themeToggle.textContent = 'Light'; themeToggle.setAttribute('aria-pressed','true');
+}
+
+/* =========================
+   Reveal on scroll (IntersectionObserver)
+   ========================= */
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      en.target.classList.add('show');
+      // animate nested progress bars inside revealed block
+      en.target.querySelectorAll('.bar > i').forEach(i=> {
+        const w = i.getAttribute('data-width') || i.style.width || '';
+        if(w) i.style.width = w;
+      });
+    }
+  });
+}, {threshold:0.18});
+reveals.forEach(r => obs.observe(r));
+
+/* =========================
+   Custom cursor
+   ========================= */
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+});
+document.addEventListener('mouseenter', ()=> cursor.style.opacity = 1);
+
+/* =========================
+   Scroll to top button
+   ========================= */
+const topBtn = document.getElementById('topBtn');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 600) topBtn.classList.add('show'); else topBtn.classList.remove('show');
+});
+topBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
+
+/* =========================
+   Fake form submit (demo)
+   ========================= */
+function fakeSubmit(){
+  const btn = document.querySelector('.send');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  setTimeout(()=> {
+    btn.textContent = 'Sent ✓';
+    btn.disabled = false;
+    setTimeout(()=> btn.textContent = 'Send',1600);
+  }, 900);
+}
+
+/* =========================
+   Starfield background (canvas)
+   - professional, efficient, reacts slightly to mouse
+   ========================= */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = innerWidth;
+let h = canvas.height = innerHeight;
+window.addEventListener('resize', () => { w = canvas.width = innerWidth; h = canvas.height = innerHeight; initStars(); });
+
+let mouse = {x: w/2, y: h/2};
+document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+// Respect reduced motion preference: if reduce, animate fewer things
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let stars = [];
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function initStars(){
+  stars = [];
+  const baseCount = Math.round((w*h) / (1400*800) * 120);
+  const count = Math.max(60, Math.min(260, baseCount));
+  for(let i=0;i<count;i++){
+    stars.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      r: rand(0.4,2.8),
+      twinkle: Math.random(),
+      vx: rand(-0.03,0.03),
+      vy: rand(-0.03,0.03)
+    });
+  }
+}
+initStars();
+
+let last = 0;
+function draw(now){
+  // throttle frame rate slightly
+  const dt = now - last;
+  if (dt < 16 && !prefersReducedMotion) { requestAnimationFrame(draw); return; }
+  last = now;
+
+  ctx.clearRect(0,0,w,h);
+
+  // subtle vignette
+  const g = ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0,'rgba(0,0,0,0.00)'); g.addColorStop(1,'rgba(0,0,0,0.00)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+
+  // center offset influence based on mouse position
+  const mx = (mouse.x - w/2) * 0.002;
+  const my = (mouse.y - h/2) * 0.002;
+
+  // draw stars
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
+  ctx.beginPath();
+  for(const s of stars){
+    // subtle movement and mouse parallax
+    s.x += s.vx + mx * (s.r * 0.6);
+    s.y += s.vy + my * (s.r * 0.6);
+
+    // wrap
+    if(s.x < -10) s.x = w + 10;
+    if(s.x > w + 10) s.x = -10;
+    if(s.y < -10) s.y = h + 10;
+    if(s.y > h + 10) s.y = -10;
+
+    // twinkle effect
+    const alpha = 0.12 + 0.2 * Math.abs(Math.sin((now / 1000) * (0.5 + s.twinkle)));
+    ctx.globalAlpha = alpha;
+    ctx.moveTo(s.x, s.y);
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+  }
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // connect some close stars with faint lines
+  for(let i=0;i<stars.length;i++){
+    for(let j=i+1;j<stars.length;j++){
+      const a = stars[i], b = stars[j];
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < 120){
+        ctx.globalAlpha = 0.03 * (1 - dist/120);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* =========================
+   Subtle parallax for elements with [data-parallax]
+   ========================= */
+const movable = document.querySelectorAll('[data-parallax]');
+window.addEventListener('scroll', () => {
+  const top = window.scrollY;
+  movable.forEach((el, idx) => {
+    const speed = 0.04 + idx*0.02;
+    el.style.transform = `translateY(${(top) * speed * -0.12}px)`;
+  });
+});
+
+/* =========================
+   Bars animation when visible (for those with data-width)
+   ========================= */
+const bars = document.querySelectorAll('.bar > i[data-width]');
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(en => {
+    if(en.isIntersecting){
+      const el = en.target;
+      const w = el.getAttribute('data-width');
+      el.style.width = w;
+    }
+  });
+}, {threshold:0.35});
+bars.forEach(b => barObserver.observe(b));
+
+/* =========================
+   Keyboard accessibility: T toggles theme
+   ========================= */
+document.addEventListener('keydown', e => {
+  if(e.key && e.key.toLowerCase() === 't') themeToggle.click();
+});
+
+/* =========================
+   Respect reduced motion preference: minimize heavy logic if requested
+   ========================= */
+if(prefersReducedMotion){
+  // stop canvas animation loop by clearing stars and drawing one static frame
+  stars = stars.map(s => ({...s, vx:0, vy:0}));
+  // no further change needed; animations were throttled earlier
+}
+</script>
+</body>
+</html>
